@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Contact Mithila Crafts for inquiries about Madhubani paintings, custom orders, wholesale, or artisan collaborations.">
+  <title>Contact Us - Mithila Crafts</title>
+  <link rel="icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <img src="logo192.png" alt="Mithila Crafts">
+        Mithila Crafts
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="products.html">Shop</a>
+        <a href="about.html">About</a>
+        <a href="contact.html" class="active">Contact</a>
+        <a href="cart.html" class="nav-cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="cart-badge" style="display:none">0</span>
+        </a>
+        <span class="auth-nav-links"></span>
+      </div>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Contact Page -->
+  <div class="contact-page">
+    <!-- Contact Hero -->
+    <section class="contact-hero">
+      <div class="container">
+        <h1>Get in Touch</h1>
+        <p>Have a question about our products or want to place a custom order? We would love to hear from you.</p>
+      </div>
+    </section>
+
+    <!-- Contact Content -->
+    <section class="contact-content">
+      <div class="container">
+        <div class="contact-grid">
+          <!-- Contact Form -->
+          <div class="contact-form">
+            <div id="form-message" class="form-message"></div>
+            <form id="contact-form" data-netlify="true" name="contact" method="POST">
+              <input type="hidden" name="form-name" value="contact">
+              <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required placeholder="Your full name">
+              </div>
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required placeholder="your@email.com">
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number (optional)</label>
+                <input type="tel" id="phone" name="phone" placeholder="+91 12345 67890">
+              </div>
+              <div class="form-group">
+                <label for="subject">Subject</label>
+                <select id="subject" name="subject" required>
+                  <option value="">Select a subject</option>
+                  <option value="general">General Enquiry</option>
+                  <option value="order">Order Related</option>
+                  <option value="custom">Custom Order Request</option>
+                  <option value="wholesale">Wholesale Enquiry</option>
+                  <option value="artisan">Artisan Collaboration</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" name="message" required placeholder="Tell us how we can help you..."></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary" id="submit-btn">Send Message</button>
+            </form>
+          </div>
+
+          <!-- Contact Details -->
+          <div class="contact-details">
+            <h2>Contact Information</h2>
+
+            <div class="contact-detail-item">
+              <div class="contact-icon">&#128205;</div>
+              <div>
+                <h3>Location</h3>
+                <p>Madhubani District<br>Bihar 847211, India</p>
+              </div>
+            </div>
+
+            <div class="contact-detail-item">
+              <div class="contact-icon">&#128231;</div>
+              <div>
+                <h3>Email</h3>
+                <p>hello@mithilacrafts.com<br>orders@mithilacrafts.com</p>
+              </div>
+            </div>
+
+            <div class="contact-detail-item">
+              <div class="contact-icon">&#128222;</div>
+              <div>
+                <h3>Phone</h3>
+                <p>+91 98765 43210<br>Mon-Sat, 10am-6pm IST</p>
+              </div>
+            </div>
+
+            <div class="contact-detail-item">
+              <div class="contact-icon">&#128337;</div>
+              <div>
+                <h3>Response Time</h3>
+                <p>We typically respond within 24 hours on business days.</p>
+              </div>
+            </div>
+
+            <div style="margin-top: 30px; padding: 24px; background: var(--color-bg); border-radius: var(--radius-md);">
+              <h3 style="margin-bottom: 12px; font-size: 1rem;">Custom Orders</h3>
+              <p style="font-size: 0.9rem; color: var(--color-text-light); line-height: 1.7;">Looking for a specific size, design, or bulk order? We work with our artisans to create custom pieces tailored to your needs. Contact us with your requirements and we will provide a quote within 48 hours.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>Mithila Crafts</h3>
+          <p>Bringing authentic Mithila art and handicrafts to homes across India and the world. Every purchase supports artisan families in Bihar.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Facebook">f</a>
+            <a href="#" aria-label="Instagram">in</a>
+            <a href="#" aria-label="Twitter">tw</a>
+            <a href="#" aria-label="Pinterest">pi</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <a href="products.html">All Products</a>
+          <a href="products.html?cat=paintings">Paintings</a>
+          <a href="products.html?cat=textiles">Textiles</a>
+          <a href="products.html?cat=handicrafts">Handicrafts</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="about.html">About Us</a>
+          <a href="about.html#artisans">Our Artisans</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Help</h4>
+          <a href="login.html">My Account</a>
+          <a href="contact.html">Customer Support</a>
+          <a href="contact.html">Shipping Info</a>
+          <a href="contact.html">Returns Policy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Mithila Crafts. All rights reserved. Made with love for Mithila art.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('contact-form');
+      const msgEl = document.getElementById('form-message');
+      const submitBtn = document.getElementById('submit-btn');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        msgEl.className = 'form-message';
+        msgEl.style.display = 'none';
+
+        try {
+          const formData = new FormData(form);
+          const response = await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(formData).toString()
+          });
+
+          if (response.ok) {
+            msgEl.textContent = 'Thank you for your message! We will get back to you within 24 hours.';
+            msgEl.className = 'form-message success';
+            form.reset();
+          } else {
+            throw new Error('Submission failed');
+          }
+        } catch (err) {
+          msgEl.textContent = 'There was an issue sending your message. Please try again or email us directly.';
+          msgEl.className = 'form-message error';
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+      });
+    });
+  </script>
+</body>
+</html>

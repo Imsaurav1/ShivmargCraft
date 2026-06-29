@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Shop authentic Madhubani paintings, handwoven textiles, and traditional Mithila handicrafts. Browse our full collection of artisan-made products.">
+  <title>Shop - Mithila Crafts</title>
+  <link rel="icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <img src="logo192.png" alt="Mithila Crafts">
+        Mithila Crafts
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="products.html" class="active">Shop</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="cart.html" class="nav-cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="cart-badge" style="display:none">0</span>
+        </a>
+        <span class="auth-nav-links"></span>
+      </div>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="container">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="search-input" placeholder="Search products...">
+      </div>
+      <div class="filter-tabs" id="filter-tabs"></div>
+    </div>
+  </div>
+
+  <!-- Products -->
+  <section class="section" style="padding-top: 40px;">
+    <div class="container">
+      <div id="products-count" style="margin-bottom: 20px; color: var(--color-text-light); font-size: 0.9rem;"></div>
+      <div class="products-grid" id="all-products"></div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="newsletter">
+    <div class="container">
+      <h2>Stay Connected with Mithila Art</h2>
+      <p>Subscribe to hear about new arrivals, artisan stories, and exclusive offers.</p>
+      <form class="newsletter-form" data-netlify="true" name="newsletter" method="POST">
+        <input type="hidden" name="form-name" value="newsletter">
+        <input type="email" name="email" placeholder="Enter your email address" required>
+        <button type="submit" class="btn btn-secondary">Subscribe</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>Mithila Crafts</h3>
+          <p>Bringing authentic Mithila art and handicrafts to homes across India and the world. Every purchase supports artisan families in Bihar.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Facebook">f</a>
+            <a href="#" aria-label="Instagram">in</a>
+            <a href="#" aria-label="Twitter">tw</a>
+            <a href="#" aria-label="Pinterest">pi</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <a href="products.html">All Products</a>
+          <a href="products.html?cat=paintings">Paintings</a>
+          <a href="products.html?cat=textiles">Textiles</a>
+          <a href="products.html?cat=handicrafts">Handicrafts</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="about.html">About Us</a>
+          <a href="about.html#artisans">Our Artisans</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Help</h4>
+          <a href="login.html">My Account</a>
+          <a href="contact.html">Customer Support</a>
+          <a href="contact.html">Shipping Info</a>
+          <a href="contact.html">Returns Policy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Mithila Crafts. All rights reserved. Made with love for Mithila art.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.productsReady;
+
+      let activeCategory = 'all';
+      let searchQuery = '';
+
+      // Read category from URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const catParam = urlParams.get('cat');
+      if (catParam && CATEGORIES.find(c => c.id === catParam)) {
+        activeCategory = catParam;
+      }
+
+      // Render filter tabs
+      const filterTabs = document.getElementById('filter-tabs');
+      if (filterTabs) {
+        filterTabs.innerHTML = CATEGORIES.map(cat => `
+          <button class="filter-tab ${cat.id === activeCategory ? 'active' : ''}" data-category="${cat.id}">
+            ${cat.name}
+          </button>
+        `).join('');
+
+        filterTabs.addEventListener('click', (e) => {
+          const tab = e.target.closest('.filter-tab');
+          if (!tab) return;
+          activeCategory = tab.dataset.category;
+          filterTabs.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          renderFiltered();
+        });
+      }
+
+      // Search
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          searchQuery = e.target.value.toLowerCase().trim();
+          renderFiltered();
+        });
+      }
+
+      function renderFiltered() {
+        let filtered = PRODUCTS;
+        if (activeCategory !== 'all') {
+          filtered = filtered.filter(p => p.category === activeCategory);
+        }
+        if (searchQuery) {
+          filtered = filtered.filter(p =>
+            p.name.toLowerCase().includes(searchQuery) ||
+            p.description.toLowerCase().includes(searchQuery) ||
+            p.category.toLowerCase().includes(searchQuery)
+          );
+        }
+        const countEl = document.getElementById('products-count');
+        if (countEl) {
+          countEl.textContent = `Showing ${filtered.length} product${filtered.length !== 1 ? 's' : ''}`;
+        }
+        renderProductsGrid(filtered, '#all-products');
+      }
+
+      renderFiltered();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Product details - Mithila Crafts authentic handmade art and handicrafts from Bihar, India.">
+  <title>Product Detail - Mithila Crafts</title>
+  <link rel="icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <img src="logo192.png" alt="Mithila Crafts">
+        Mithila Crafts
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="products.html">Shop</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="cart.html" class="nav-cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="cart-badge" style="display:none">0</span>
+        </a>
+        <span class="auth-nav-links"></span>
+      </div>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <div class="container">
+      <a href="index.html">Home</a>
+      <span>/</span>
+      <a href="products.html">Shop</a>
+      <span>/</span>
+      <span class="current" id="breadcrumb-name">Product</span>
+    </div>
+  </div>
+
+  <!-- Product Detail -->
+  <section class="product-detail">
+    <div class="container" id="product-detail-container">
+      <div class="detail-image">
+        <div class="product-art-display" id="product-main-image"></div>
+      </div>
+      <div class="detail-info" id="product-info"></div>
+    </div>
+  </section>
+
+  <!-- Related Products -->
+  <section class="section" style="background: var(--color-white);">
+    <div class="container">
+      <h2 class="section-title">You May Also Like</h2>
+      <p class="section-subtitle">Explore more authentic Mithila art and crafts from our collection.</p>
+      <div class="products-grid" id="related-products"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>Mithila Crafts</h3>
+          <p>Bringing authentic Mithila art and handicrafts to homes across India and the world. Every purchase supports artisan families in Bihar.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <a href="products.html">All Products</a>
+          <a href="products.html?cat=paintings">Paintings</a>
+          <a href="products.html?cat=textiles">Textiles</a>
+          <a href="products.html?cat=handicrafts">Handicrafts</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="about.html">About Us</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Help</h4>
+          <a href="login.html">My Account</a>
+          <a href="contact.html">Customer Support</a>
+          <a href="contact.html">Shipping Info</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Mithila Crafts. All rights reserved. Made with love for Mithila art.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.productsReady;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const productId = parseInt(urlParams.get('id'));
+      const product = PRODUCTS.find(p => p.id === productId);
+
+      if (!product) {
+        document.getElementById('product-detail-container').innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 80px 20px;">
+            <h2>Product Not Found</h2>
+            <p style="color: var(--color-text-light); margin: 16px 0 24px;">The product you are looking for does not exist or has been removed.</p>
+            <a href="products.html" class="btn btn-primary">Browse Products</a>
+          </div>
+        `;
+        return;
+      }
+
+      // Update page title and breadcrumb
+      document.title = `${product.name} - Mithila Crafts`;
+      document.getElementById('breadcrumb-name').textContent = product.name;
+
+      // Render product image
+      const imageContainer = document.getElementById('product-main-image');
+      const imgSrc = getProductImageDataURI(product.image, 500, 500);
+      imageContainer.innerHTML = `<img src="${imgSrc}" alt="${product.name}" style="width:100%; height:100%; object-fit:cover;">`;
+
+      // Render product info
+      const infoContainer = document.getElementById('product-info');
+      const originalPriceHTML = product.originalPrice
+        ? `<span style="font-size: 1.2rem; color: #999; text-decoration: line-through; margin-left: 12px; font-weight: 400;">&#8377;${product.originalPrice.toLocaleString('en-IN')}</span>`
+        : '';
+
+      let specsHTML = '';
+      if (product.details) {
+        specsHTML = '<dl class="specs">';
+        for (const [key, value] of Object.entries(product.details)) {
+          const label = key.charAt(0).toUpperCase() + key.slice(1);
+          specsHTML += `<dt>${label}</dt><dd>${value}</dd>`;
+        }
+        specsHTML += '</dl>';
+      }
+
+      let qty = 1;
+
+      infoContainer.innerHTML = `
+        <span class="product-category">${product.category.replace('-', ' ')}</span>
+        <h1>${product.name}</h1>
+        <div class="price">&#8377;${product.price.toLocaleString('en-IN')}${originalPriceHTML}</div>
+        <p class="description">${product.description}</p>
+        ${specsHTML}
+        <div class="quantity-selector">
+          <label>Quantity:</label>
+          <div class="qty-controls">
+            <button id="qty-minus">&#8722;</button>
+            <input type="number" id="qty-input" value="1" min="1" max="10" readonly>
+            <button id="qty-plus">&#43;</button>
+          </div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-primary" id="add-to-cart-detail">Add to Cart</button>
+          <a href="products.html" class="btn btn-outline">Continue Shopping</a>
+        </div>
+      `;
+
+      // Quantity controls
+      document.getElementById('qty-minus').addEventListener('click', () => {
+        if (qty > 1) {
+          qty--;
+          document.getElementById('qty-input').value = qty;
+        }
+      });
+
+      document.getElementById('qty-plus').addEventListener('click', () => {
+        if (qty < 10) {
+          qty++;
+          document.getElementById('qty-input').value = qty;
+        }
+      });
+
+      // Add to cart
+      document.getElementById('add-to-cart-detail').addEventListener('click', () => {
+        Cart.addItem(product, qty);
+      });
+
+      // Related products (same category, different product)
+      const related = PRODUCTS.filter(p => p.category === product.category && p.id !== product.id).slice(0, 3);
+      if (related.length === 0) {
+        // If no same-category products, show random others
+        const others = PRODUCTS.filter(p => p.id !== product.id).slice(0, 3);
+        renderProductsGrid(others, '#related-products');
+      } else {
+        renderProductsGrid(related, '#related-products');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mithila Crafts - Authentic handmade Madhubani paintings, traditional textiles, and artisan handicrafts from Bihar, India. Support local artisans.">
+  <meta name="keywords" content="Mithila art, Madhubani painting, Bihar handicrafts, Indian folk art, handmade crafts, traditional art">
+  <title>Mithila Crafts - Authentic Madhubani Art & Handmade Crafts</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="logo192.png">
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <img src="logo192.png" alt="Mithila Crafts">
+        Mithila Crafts
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="products.html">Shop</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="cart.html" class="nav-cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="cart-badge" style="display:none">0</span>
+        </a>
+        <span class="auth-nav-links"></span>
+      </div>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>Timeless Art from <span>the Heart of Mithila</span></h1>
+        <p>Discover authentic Madhubani paintings, handwoven textiles, and traditional handicrafts created by skilled artisans from Bihar. Every piece carries centuries of heritage and supports rural artisan communities.</p>
+        <div class="hero-buttons">
+          <a href="products.html" class="btn btn-primary">Shop Collection</a>
+          <a href="about.html" class="btn btn-outline">Our Story</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <div class="hero-art">
+          <div class="hero-art-pattern">
+            <div class="art-center">
+              <span class="lotus">&#127804;</span>
+              <p>Handcrafted with Love</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Strip -->
+  <section class="features-strip">
+    <div class="container">
+      <div class="feature-item">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        <span>100% Authentic Handmade</span>
+      </div>
+      <div class="feature-item">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM4 0h16v2H4zm0 22h16v2H4zm8-10a2.5 2.5 0 000-5 2.5 2.5 0 000 5zm0 1c-1.63 0-5 .84-5 2.5V17h10v-1.5c0-1.66-3.37-2.5-5-2.5z"/></svg>
+        <span>Artisan Direct</span>
+      </div>
+      <div class="feature-item">
+        <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+        <span>Pan-India Shipping</span>
+      </div>
+      <div class="feature-item">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+        <span>Secure Payments</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">Explore Our Collections</h2>
+      <p class="section-subtitle">From intricate Madhubani paintings to handwoven textiles, each category represents a unique facet of Mithila's rich artistic heritage.</p>
+      <div class="categories-grid" id="categories-grid"></div>
+    </div>
+  </section>
+
+  <!-- Featured Products -->
+  <section class="section" style="background: var(--color-white);">
+    <div class="container">
+      <h2 class="section-title">Featured Products</h2>
+      <p class="section-subtitle">Handpicked pieces from our collection, each one a testament to the skill and tradition of Mithila artisans.</p>
+      <div class="products-grid" id="featured-products"></div>
+      <div style="text-align: center; margin-top: 40px;">
+        <a href="products.html" class="btn btn-outline">View All Products</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Preview -->
+  <section class="section about-section">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image">
+          <div class="about-art-placeholder">
+            <span class="art-icon">&#127912;</span>
+            <p>Preserving centuries-old art traditions through sustainable artisan partnerships</p>
+          </div>
+        </div>
+        <div class="about-text">
+          <h2>Preserving Heritage, Empowering Artisans</h2>
+          <p>Mithila Crafts works directly with over 50 artisan families across the Madhubani and Darbhanga districts of Bihar. Our mission is to bring authentic Mithila art to homes worldwide while ensuring fair wages and sustainable livelihoods for the communities that keep these traditions alive.</p>
+          <p>Every product is handcrafted using traditional techniques passed down through generations, using natural dyes and locally sourced materials wherever possible.</p>
+          <div class="stats">
+            <div class="stat-item">
+              <span class="number">50+</span>
+              <span class="label">Artisan Families</span>
+            </div>
+            <div class="stat-item">
+              <span class="number">500+</span>
+              <span class="label">Products Sold</span>
+            </div>
+            <div class="stat-item">
+              <span class="number">100%</span>
+              <span class="label">Handcrafted</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section testimonials">
+    <div class="container">
+      <h2 class="section-title">What Our Customers Say</h2>
+      <p class="section-subtitle">Hear from people who have brought a piece of Mithila art into their homes.</p>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <p class="quote">"The Madhubani painting I purchased is absolutely stunning. The colours are vibrant and the detail is incredible. It's become the centrepiece of my living room."</p>
+          <p class="author">Priya Sharma</p>
+          <p class="location">New Delhi</p>
+        </div>
+        <div class="testimonial-card">
+          <p class="quote">"I love knowing that my purchase supports real artisan families. The Sikki grass baskets are beautiful and the quality is outstanding. Will definitely buy again."</p>
+          <p class="author">Arun Mehta</p>
+          <p class="location">Mumbai</p>
+        </div>
+        <div class="testimonial-card">
+          <p class="quote">"Gifted the Tussar silk saree with Madhubani prints to my mother. She was thrilled! The craftsmanship is exceptional and the packaging was thoughtful."</p>
+          <p class="author">Kavita Jha</p>
+          <p class="location">Bangalore</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="newsletter">
+    <div class="container">
+      <h2>Stay Connected with Mithila Art</h2>
+      <p>Subscribe to hear about new arrivals, artisan stories, and exclusive offers.</p>
+      <form class="newsletter-form" data-netlify="true" name="newsletter" method="POST">
+        <input type="hidden" name="form-name" value="newsletter">
+        <input type="email" name="email" placeholder="Enter your email address" required>
+        <button type="submit" class="btn btn-secondary">Subscribe</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>Mithila Crafts</h3>
+          <p>Bringing authentic Mithila art and handicrafts to homes across India and the world. Every purchase supports artisan families in Bihar.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Facebook">f</a>
+            <a href="#" aria-label="Instagram">in</a>
+            <a href="#" aria-label="Twitter">tw</a>
+            <a href="#" aria-label="Pinterest">pi</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <a href="products.html">All Products</a>
+          <a href="products.html?cat=paintings">Paintings</a>
+          <a href="products.html?cat=textiles">Textiles</a>
+          <a href="products.html?cat=handicrafts">Handicrafts</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="about.html">About Us</a>
+          <a href="about.html#artisans">Our Artisans</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Help</h4>
+          <a href="login.html">My Account</a>
+          <a href="contact.html">Customer Support</a>
+          <a href="contact.html">Shipping Info</a>
+          <a href="contact.html">Returns Policy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Mithila Crafts. All rights reserved. Made with love for Mithila art.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.productsReady;
+
+      // Render categories
+      const catGrid = document.getElementById('categories-grid');
+      if (catGrid) {
+        catGrid.innerHTML = CATEGORIES.filter(c => c.id !== 'all').map(cat => `
+          <a href="products.html?cat=${cat.id}" class="category-card">
+            <div class="category-icon">${cat.icon}</div>
+            <h3>${cat.name}</h3>
+            <p>${cat.description}</p>
+          </a>
+        `).join('');
+      }
+
+      // Render featured products (first 6)
+      const featured = PRODUCTS.filter(p => p.badge).slice(0, 6);
+      renderProductsGrid(featured, '#featured-products');
+    });
+  </script>
+</body>
+</html>

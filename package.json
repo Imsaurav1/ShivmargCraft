@@ -1,0 +1,12 @@
+{
+  "name": "mithilacrafts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mithila Crafts - Full-stack e-commerce platform for authentic Madhubani art, Rudraksha malas, and Bihar handicrafts. No payment gateway required: supports Cash on Delivery and manual UPI/bank transfer.",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0",
+    "@netlify/database": "^1.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "postgres": "^3.4.9"
+  }
+}

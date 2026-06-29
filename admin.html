@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Admin Panel - Manage inventory and orders for Mithila Crafts.">
+  <title>Admin Panel - Mithila Crafts</title>
+  <link rel="icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <img src="logo192.png" alt="Mithila Crafts">
+        Mithila Crafts
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="products.html">Shop</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="cart.html" class="nav-cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="cart-badge" style="display:none">0</span>
+        </a>
+        <span class="auth-nav-links"></span>
+      </div>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Admin Panel -->
+  <section class="admin-page">
+    <div class="container">
+      <div class="dashboard-header">
+        <h1>Admin Panel</h1>
+        <div class="admin-header-actions">
+          <button class="btn btn-sm btn-secondary" id="seed-btn">Seed Products</button>
+          <a href="dashboard.html" class="btn btn-sm btn-outline">My Account</a>
+        </div>
+      </div>
+
+      <div class="admin-stats" id="admin-stats"></div>
+
+      <div class="dashboard-tabs">
+        <button class="dash-tab active" data-tab="inventory">Inventory</button>
+        <button class="dash-tab" data-tab="orders">Orders</button>
+        <button class="dash-tab" data-tab="add-product">Add Product</button>
+      </div>
+
+      <!-- Inventory Tab -->
+      <div class="dash-content" id="tab-inventory">
+        <div id="inventory-loading" class="loading-state">Loading inventory...</div>
+        <div id="inventory-list"></div>
+      </div>
+
+      <!-- Orders Tab -->
+      <div class="dash-content" id="tab-orders" style="display:none;">
+        <div id="admin-orders-loading" class="loading-state">Loading orders...</div>
+        <div id="admin-orders-list"></div>
+      </div>
+
+      <!-- Add Product Tab -->
+      <div class="dash-content" id="tab-add-product" style="display:none;">
+        <div class="profile-card">
+          <h2 id="product-form-title">Add New Product</h2>
+          <div id="product-message" class="form-message"></div>
+          <form id="product-form">
+            <input type="hidden" id="prod-id">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="prod-name">Product Name</label>
+                <input type="text" id="prod-name" required placeholder="Product name">
+              </div>
+              <div class="form-group">
+                <label for="prod-category">Category</label>
+                <select id="prod-category" required>
+                  <option value="">Select category</option>
+                  <option value="paintings">Paintings</option>
+                  <option value="wall-hangings">Wall Hangings</option>
+                  <option value="textiles">Textiles</option>
+                  <option value="handicrafts">Handicrafts</option>
+                  <option value="rudraksha">Rudraksha & Spiritual</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="prod-price">Price (INR)</label>
+                <input type="number" id="prod-price" required min="1" placeholder="1500">
+              </div>
+              <div class="form-group">
+                <label for="prod-original-price">Original Price (INR)</label>
+                <input type="number" id="prod-original-price" min="0" placeholder="2000">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="prod-stock">Stock</label>
+                <input type="number" id="prod-stock" required min="0" placeholder="25">
+              </div>
+              <div class="form-group">
+                <label for="prod-badge">Badge</label>
+                <input type="text" id="prod-badge" placeholder="Bestseller, Featured, etc.">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="prod-description">Description</label>
+              <textarea id="prod-description" required rows="3" placeholder="Product description"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="prod-image">Image Key</label>
+              <select id="prod-image">
+                <option value="fish-painting">Fish Painting</option>
+                <option value="kohbar-art">Kohbar Art</option>
+                <option value="tree-of-life">Tree of Life</option>
+                <option value="peacock-art">Peacock Art</option>
+                <option value="sujani-cushion">Sujani Cushion</option>
+                <option value="sikki-basket">Sikki Basket</option>
+                <option value="godna-art">Godna Art</option>
+                <option value="clay-pots">Clay Pots</option>
+                <option value="krishna-leela">Krishna Leela</option>
+                <option value="madhubani-saree">Madhubani Saree</option>
+                <option value="wooden-elephant">Wooden Elephant</option>
+                <option value="table-runner">Table Runner</option>
+                <option value="rudraksha-mala">Rudraksha Mala</option>
+                <option value="rudraksha-bracelet">Rudraksha Bracelet</option>
+                <option value="rudraksha-pendant">Rudraksha Pendant</option>
+                <option value="rudraksha-loose">Rudraksha Loose Beads</option>
+              </select>
+            </div>
+            <h3 style="margin: 20px 0 12px; font-size: 1rem;">Product Details</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="prod-medium">Medium</label>
+                <input type="text" id="prod-medium" placeholder="Natural dyes on paper">
+              </div>
+              <div class="form-group">
+                <label for="prod-size">Size</label>
+                <input type="text" id="prod-size" placeholder="24 x 18 inches">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="prod-origin">Origin</label>
+                <input type="text" id="prod-origin" placeholder="Madhubani, Bihar">
+              </div>
+              <div class="form-group">
+                <label for="prod-artist">Artist</label>
+                <input type="text" id="prod-artist" placeholder="Artisan name">
+              </div>
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <button type="submit" class="btn btn-primary" id="save-product-btn">Save Product</button>
+              <button type="button" class="btn btn-outline" id="reset-product-btn" style="display:none;">Cancel Edit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2026 Mithila Crafts. All rights reserved. Made with love for Mithila art.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.isLoggedIn() || !Auth.isAdmin()) {
+        window.location.href = Auth.isLoggedIn() ? 'dashboard.html' : 'login.html';
+        return;
+      }
+
+      // Tabs
+      document.querySelectorAll('.dash-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          document.querySelectorAll('.dash-content').forEach(c => c.style.display = 'none');
+          document.getElementById(`tab-${tab.dataset.tab}`).style.display = 'block';
+        });
+      });
+
+      // Seed button
+      document.getElementById('seed-btn').addEventListener('click', async () => {
+        const btn = document.getElementById('seed-btn');
+        btn.disabled = true;
+        btn.textContent = 'Seeding...';
+        try {
+          const res = await fetch('/.netlify/functions/seed-data', {
+            method: 'POST',
+            headers: Auth.authHeaders(),
+            body: JSON.stringify({ action: 'seed-products' }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            Cart.showToast('Products seeded successfully!');
+            loadInventory();
+          }
+        } catch (err) {
+          Cart.showToast('Failed to seed products');
+        }
+        btn.disabled = false;
+        btn.textContent = 'Seed Products';
+      });
+
+      loadInventory();
+      loadAdminOrders();
+      setupProductForm();
+    });
+
+    async function loadInventory() {
+      const container = document.getElementById('inventory-list');
+      const loading = document.getElementById('inventory-loading');
+
+      try {
+        const res = await fetch('/.netlify/functions/admin-products', {
+          headers: Auth.authHeaders(),
+        });
+        const data = await res.json();
+        loading.style.display = 'none';
+
+        // Stats
+        const stats = document.getElementById('admin-stats');
+        const activeProducts = (data.products || []).filter(p => p.active !== false);
+        const totalStock = activeProducts.reduce((s, p) => s + (p.stock || 0), 0);
+        stats.innerHTML = `
+          <div class="stat-card"><span class="stat-number">${activeProducts.length}</span><span class="stat-label">Active Products</span></div>
+          <div class="stat-card"><span class="stat-number">${totalStock}</span><span class="stat-label">Total Stock</span></div>
+          <div class="stat-card"><span class="stat-number">${(data.products || []).filter(p => p.active === false).length}</span><span class="stat-label">Inactive</span></div>
+        `;
+
+        if (!data.products || data.products.length === 0) {
+          container.innerHTML = '<div class="empty-state"><h3>No products found</h3><p>Click "Seed Products" to add initial products, or add products manually.</p></div>';
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="inventory-table-wrap">
+            <table class="inventory-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.products.map(p => `
+                  <tr class="${p.active === false ? 'inactive-row' : ''}">
+                    <td>${p.id}</td>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${(p.category || '').replace('-', ' ')}</td>
+                    <td>&#8377;${(p.price || 0).toLocaleString('en-IN')}</td>
+                    <td><span class="stock-badge ${(p.stock || 0) < 10 ? 'low' : ''}">${p.stock || 0}</span></td>
+                    <td>${p.active !== false ? '<span class="active-badge">Active</span>' : '<span class="inactive-badge">Inactive</span>'}</td>
+                    <td class="action-cell">
+                      <button class="btn-action edit-btn" data-id="${p.id}" title="Edit">Edit</button>
+                      <button class="btn-action delete-btn" data-id="${p.id}" title="${p.active !== false ? 'Deactivate' : 'Activate'}">${p.active !== false ? 'Delete' : 'Restore'}</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        // Edit buttons
+        container.querySelectorAll('.edit-btn').forEach(btn => {
+          btn.addEventListener('click', () => editProduct(data.products.find(p => p.id === parseInt(btn.dataset.id))));
+        });
+
+        // Delete buttons
+        container.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const product = data.products.find(p => p.id === parseInt(btn.dataset.id));
+            if (!product) return;
+            const action = product.active !== false ? 'deactivate' : 'activate';
+            if (!confirm(`Are you sure you want to ${action} "${product.name}"?`)) return;
+
+            try {
+              if (product.active !== false) {
+                await fetch('/.netlify/functions/admin-products', {
+                  method: 'DELETE',
+                  headers: Auth.authHeaders(),
+                  body: JSON.stringify({ id: product.id }),
+                });
+              } else {
+                await fetch('/.netlify/functions/admin-products', {
+                  method: 'PUT',
+                  headers: Auth.authHeaders(),
+                  body: JSON.stringify({ id: product.id, active: true }),
+                });
+              }
+              Cart.showToast(`Product ${action}d successfully`);
+              loadInventory();
+            } catch (err) {
+              Cart.showToast('Action failed');
+            }
+          });
+        });
+      } catch (err) {
+        loading.style.display = 'none';
+        container.innerHTML = '<p class="error-text">Failed to load inventory. Make sure you have admin access.</p>';
+      }
+    }
+
+    async function loadAdminOrders() {
+      const container = document.getElementById('admin-orders-list');
+      const loading = document.getElementById('admin-orders-loading');
+
+      try {
+        const res = await fetch('/.netlify/functions/admin-orders', {
+          headers: Auth.authHeaders(),
+        });
+        const data = await res.json();
+        loading.style.display = 'none';
+
+        if (!data.orders || data.orders.length === 0) {
+          container.innerHTML = '<div class="empty-state"><h3>No orders yet</h3><p>Orders will appear here when customers make purchases.</p></div>';
+          return;
+        }
+
+        container.innerHTML = data.orders.map(order => {
+          const statusColor = {
+            pending: '#F9A825', confirmed: '#2196F3', processing: '#FF9800',
+            shipped: '#9C27B0', delivered: '#4CAF50', cancelled: '#F44336'
+          }[order.status] || '#999';
+
+          const paymentBadge = {
+            paid: '<span class="payment-badge paid">Payment Received</span>',
+            awaiting_verification: '<span class="payment-badge pending">UPI - Awaiting Verification</span>',
+            pay_on_delivery: '<span class="payment-badge cod">Cash on Delivery</span>',
+            unpaid: '<span class="payment-badge pending">Unpaid</span>',
+            refunded: '<span class="payment-badge refunded">Refunded</span>',
+          }[order.paymentStatus] || '';
+
+          const markPaidBtn = order.paymentStatus === 'awaiting_verification'
+            ? `<button class="btn-action mark-paid-btn" data-order-id="${order.id}">Mark as Paid</button>`
+            : '';
+
+          return `
+            <div class="order-card admin-order-card">
+              <div class="order-header">
+                <div>
+                  <span class="order-id">${order.id}</span>
+                  <span class="order-date">${new Date(order.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                  <span class="order-customer">${order.userName || order.userEmail || 'Guest'}</span>
+                  ${order.customer ? `<span class="order-customer">&#128222; ${order.customer.phone || ''}</span>` : ''}
+                </div>
+                <div class="order-status-group">
+                  ${paymentBadge}
+                  ${markPaidBtn}
+                  <select class="status-select" data-order-id="${order.id}" style="border-color: ${statusColor};">
+                    ${['pending','confirmed','processing','shipped','delivered','cancelled'].map(s =>
+                      `<option value="${s}" ${s === order.status ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`
+                    ).join('')}
+                  </select>
+                </div>
+              </div>
+              ${order.customer && order.customer.address ? `<p class="order-address">&#128205; ${order.customer.address}${order.customer.pincode ? ' - ' + order.customer.pincode : ''}</p>` : ''}
+              <div class="order-items">
+                ${order.items.map(item => `
+                  <div class="order-item-row">
+                    <span>${item.name} x ${item.qty}</span>
+                    <span>&#8377;${(item.price * item.qty).toLocaleString('en-IN')}</span>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="order-total">
+                <span>Total</span>
+                <span>&#8377;${order.total.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Mark-as-paid handlers (manual payment verification, since there's no payment gateway)
+        container.querySelectorAll('.mark-paid-btn').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            btn.textContent = 'Updating...';
+            try {
+              await fetch('/.netlify/functions/admin-orders', {
+                method: 'PUT',
+                headers: Auth.authHeaders(),
+                body: JSON.stringify({ orderId: btn.dataset.orderId, paymentStatus: 'paid' }),
+              });
+              Cart.showToast('Payment marked as received');
+              loadAdminOrders();
+            } catch (err) {
+              Cart.showToast('Failed to update payment status');
+              btn.disabled = false;
+              btn.textContent = 'Mark as Paid';
+            }
+          });
+        });
+
+        // Status change handlers
+        container.querySelectorAll('.status-select').forEach(select => {
+          select.addEventListener('change', async (e) => {
+            try {
+              await fetch('/.netlify/functions/admin-orders', {
+                method: 'PUT',
+                headers: Auth.authHeaders(),
+                body: JSON.stringify({ orderId: select.dataset.orderId, status: e.target.value }),
+              });
+              Cart.showToast('Order status updated');
+            } catch (err) {
+              Cart.showToast('Failed to update status');
+            }
+          });
+        });
+      } catch (err) {
+        loading.style.display = 'none';
+        container.innerHTML = '<p class="error-text">Failed to load orders.</p>';
+      }
+    }
+
+    function editProduct(product) {
+      if (!product) return;
+      // Switch to add product tab
+      document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('[data-tab="add-product"]').classList.add('active');
+      document.querySelectorAll('.dash-content').forEach(c => c.style.display = 'none');
+      document.getElementById('tab-add-product').style.display = 'block';
+
+      document.getElementById('product-form-title').textContent = 'Edit Product';
+      document.getElementById('reset-product-btn').style.display = 'inline-block';
+      document.getElementById('prod-id').value = product.id;
+      document.getElementById('prod-name').value = product.name || '';
+      document.getElementById('prod-category').value = product.category || '';
+      document.getElementById('prod-price').value = product.price || '';
+      document.getElementById('prod-original-price').value = product.originalPrice || '';
+      document.getElementById('prod-stock').value = product.stock || 0;
+      document.getElementById('prod-badge').value = product.badge || '';
+      document.getElementById('prod-description').value = product.description || '';
+      document.getElementById('prod-image').value = product.image || 'fish-painting';
+      if (product.details) {
+        document.getElementById('prod-medium').value = product.details.medium || '';
+        document.getElementById('prod-size').value = product.details.size || '';
+        document.getElementById('prod-origin').value = product.details.origin || '';
+        document.getElementById('prod-artist').value = product.details.artist || '';
+      }
+    }
+
+    function setupProductForm() {
+      const form = document.getElementById('product-form');
+      const msgEl = document.getElementById('product-message');
+      const saveBtn = document.getElementById('save-product-btn');
+      const resetBtn = document.getElementById('reset-product-btn');
+
+      resetBtn.addEventListener('click', () => {
+        form.reset();
+        document.getElementById('prod-id').value = '';
+        document.getElementById('product-form-title').textContent = 'Add New Product';
+        resetBtn.style.display = 'none';
+        msgEl.style.display = 'none';
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+        msgEl.style.display = 'none';
+
+        const productData = {
+          name: document.getElementById('prod-name').value,
+          category: document.getElementById('prod-category').value,
+          price: parseInt(document.getElementById('prod-price').value),
+          originalPrice: parseInt(document.getElementById('prod-original-price').value) || null,
+          stock: parseInt(document.getElementById('prod-stock').value) || 0,
+          badge: document.getElementById('prod-badge').value || null,
+          description: document.getElementById('prod-description').value,
+          image: document.getElementById('prod-image').value,
+          details: {
+            medium: document.getElementById('prod-medium').value,
+            size: document.getElementById('prod-size').value,
+            origin: document.getElementById('prod-origin').value,
+            artist: document.getElementById('prod-artist').value,
+          },
+          active: true,
+        };
+
+        const editId = document.getElementById('prod-id').value;
+        const isEdit = !!editId;
+        if (isEdit) productData.id = parseInt(editId);
+
+        try {
+          const res = await fetch('/.netlify/functions/admin-products', {
+            method: isEdit ? 'PUT' : 'POST',
+            headers: Auth.authHeaders(),
+            body: JSON.stringify(productData),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error);
+
+          msgEl.textContent = isEdit ? 'Product updated successfully!' : 'Product created successfully!';
+          msgEl.className = 'form-message success';
+
+          if (!isEdit) {
+            form.reset();
+            document.getElementById('prod-id').value = '';
+          }
+          loadInventory();
+        } catch (err) {
+          msgEl.textContent = err.message;
+          msgEl.className = 'form-message error';
+        }
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Product';
+      });
+    }
+  </script>
+</body>
+</html>

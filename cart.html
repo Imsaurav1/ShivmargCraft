@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Your shopping cart - Mithila Crafts. Review your selected handmade art and craft items.">
+  <title>Cart - Mithila Crafts</title>
+  <link rel="icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <img src="logo192.png" alt="Mithila Crafts">
+        Mithila Crafts
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="products.html">Shop</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="cart.html" class="nav-cart active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="cart-badge" style="display:none">0</span>
+        </a>
+        <span class="auth-nav-links"></span>
+      </div>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Cart -->
+  <section class="cart-page section">
+    <div class="container">
+      <h1>Shopping Cart</h1>
+      <div id="cart-content"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>Mithila Crafts</h3>
+          <p>Bringing authentic Mithila art and handicrafts to homes across India and the world. Every purchase supports artisan families in Bihar.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <a href="products.html">All Products</a>
+          <a href="products.html?cat=paintings">Paintings</a>
+          <a href="products.html?cat=textiles">Textiles</a>
+          <a href="products.html?cat=handicrafts">Handicrafts</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="about.html">About Us</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Help</h4>
+          <a href="login.html">My Account</a>
+          <a href="contact.html">Customer Support</a>
+          <a href="contact.html">Shipping Info</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Mithila Crafts. All rights reserved. Made with love for Mithila art.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let lastOrderTotal = 0;
+
+    async function renderCart() {
+      await window.productsReady;
+      const container = document.getElementById('cart-content');
+      const items = Cart.getItems();
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="cart-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            <h2>Your cart is empty</h2>
+            <p>Discover beautiful handmade Mithila art and crafts to add to your collection.</p>
+            <a href="products.html" class="btn btn-primary">Browse Products</a>
+          </div>
+        `;
+        return;
+      }
+
+      const subtotal = Cart.getTotal();
+      const shipping = subtotal >= 2000 ? 0 : 150;
+      const total = subtotal + shipping;
+      lastOrderTotal = total;
+
+      let itemsHTML = items.map(item => {
+        const product = PRODUCTS.find(p => p.id === item.id);
+        const imgSrc = product ? getProductImageDataURI(product.image, 200, 200) : '';
+        return `
+          <div class="cart-item" data-id="${item.id}">
+            <div class="cart-item-image">
+              <img src="${imgSrc}" alt="${item.name}">
+            </div>
+            <div class="cart-item-info">
+              <h3><a href="product-detail.html?id=${item.id}">${item.name}</a></h3>
+              <span class="item-category">${(item.category || '').replace('-', ' ')}</span>
+              <span class="item-price">&#8377;${item.price.toLocaleString('en-IN')}</span>
+            </div>
+            <div class="cart-item-qty">
+              <button class="qty-dec" data-id="${item.id}">&#8722;</button>
+              <span>${item.qty}</span>
+              <button class="qty-inc" data-id="${item.id}">&#43;</button>
+            </div>
+            <button class="cart-item-remove" data-id="${item.id}" aria-label="Remove item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="cart-layout">
+          <div class="cart-items">
+            ${itemsHTML}
+          </div>
+          <div class="cart-summary">
+            <h2>Order Summary</h2>
+            <div class="cart-summary-row">
+              <span>Subtotal (${Cart.getCount()} items)</span>
+              <span>&#8377;${subtotal.toLocaleString('en-IN')}</span>
+            </div>
+            <div class="cart-summary-row">
+              <span>Shipping</span>
+              <span>${shipping === 0 ? 'Free' : '&#8377;' + shipping}</span>
+            </div>
+            ${shipping > 0 ? '<p style="font-size: 0.8rem; color: var(--color-accent); margin-bottom: 8px;">Free shipping on orders above &#8377;2,000</p>' : ''}
+            <div class="cart-summary-row total">
+              <span>Total</span>
+              <span>&#8377;${total.toLocaleString('en-IN')}</span>
+            </div>
+            <button class="btn btn-primary" id="checkout-btn">Proceed to Checkout</button>
+            <a href="products.html" class="btn btn-outline" style="margin-top: 8px;">Continue Shopping</a>
+          </div>
+        </div>
+      `;
+
+      // Event listeners for quantity changes
+      container.querySelectorAll('.qty-dec').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.dataset.id);
+          const item = Cart.getItems().find(i => i.id === id);
+          if (item && item.qty > 1) {
+            Cart.updateQty(id, item.qty - 1);
+          } else {
+            Cart.removeItem(id);
+          }
+          renderCart();
+        });
+      });
+
+      container.querySelectorAll('.qty-inc').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.dataset.id);
+          const item = Cart.getItems().find(i => i.id === id);
+          if (item && item.qty < 10) {
+            Cart.updateQty(id, item.qty + 1);
+            renderCart();
+          }
+        });
+      });
+
+      container.querySelectorAll('.cart-item-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.dataset.id);
+          Cart.removeItem(id);
+          renderCart();
+        });
+      });
+
+      // Checkout button -> opens the shipping + payment-method panel.
+      // No payment gateway is used: customers choose Cash on Delivery,
+      // or pay via UPI/bank transfer manually and confirm via WhatsApp.
+      const checkoutBtn = document.getElementById('checkout-btn');
+      if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', () => openCheckoutPanel(container));
+      }
+    }
+
+    async function openCheckoutPanel(container) {
+      let prefill = { name: '', phone: '', address: '' };
+      if (Auth.isLoggedIn()) {
+        const user = Auth.getUser();
+        prefill.name = user?.name || '';
+        try {
+          const profile = await Auth.getProfile();
+          prefill.phone = profile.phone || '';
+          prefill.address = profile.address || '';
+        } catch { /* profile fetch best-effort only */ }
+      }
+
+      container.innerHTML = `
+        <div class="checkout-panel">
+          <h2>Delivery Details</h2>
+          <div id="checkout-message" class="form-message"></div>
+          <form id="checkout-form">
+            <div class="form-group">
+              <label for="co-name">Full Name</label>
+              <input type="text" id="co-name" required placeholder="Your full name" value="${prefill.name}">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="co-phone">Phone Number</label>
+                <input type="tel" id="co-phone" required placeholder="+91 12345 67890" value="${prefill.phone}">
+              </div>
+              <div class="form-group">
+                <label for="co-pincode">Pincode</label>
+                <input type="text" id="co-pincode" required placeholder="847211" pattern="[0-9]{6}" maxlength="6">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="co-address">Full Delivery Address</label>
+              <textarea id="co-address" required rows="3" placeholder="House no., street, village/town, district, state">${prefill.address}</textarea>
+            </div>
+
+            <h3 style="margin: 20px 0 12px; font-size: 1.05rem;">Payment Method</h3>
+            <p style="font-size: 0.85rem; color: var(--color-text-light); margin-bottom: 12px;">We don't use an online payment gateway yet - choose whichever works for you:</p>
+            <div class="payment-options">
+              <label class="payment-option">
+                <input type="radio" name="payment-method" value="cod" checked>
+                <div>
+                  <strong>Cash on Delivery</strong>
+                  <p>Pay in cash when your order arrives at your doorstep.</p>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment-method" value="upi">
+                <div>
+                  <strong>UPI / Bank Transfer</strong>
+                  <p>Pay now via GPay, PhonePe, Paytm or any UPI app, then confirm on WhatsApp.</p>
+                </div>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full" id="place-order-btn" style="margin-top: 20px;">Place Order</button>
+            <button type="button" class="btn btn-outline btn-full" id="back-to-cart-btn" style="margin-top: 8px;">Back to Cart</button>
+          </form>
+        </div>
+      `;
+
+      document.getElementById('back-to-cart-btn').addEventListener('click', renderCart);
+
+      document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const placeBtn = document.getElementById('place-order-btn');
+        const msgEl = document.getElementById('checkout-message');
+        placeBtn.disabled = true;
+        placeBtn.textContent = 'Placing order...';
+        msgEl.style.display = 'none';
+
+        const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+        const customer = {
+          name: document.getElementById('co-name').value.trim(),
+          phone: document.getElementById('co-phone').value.trim(),
+          pincode: document.getElementById('co-pincode').value.trim(),
+          address: document.getElementById('co-address').value.trim(),
+        };
+
+        try {
+          const headers = Auth.isLoggedIn() ? Auth.authHeaders() : { 'Content-Type': 'application/json' };
+          const response = await fetch('/.netlify/functions/submit-order', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ items: Cart.getItems(), paymentMethod, customer }),
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || 'Order failed');
+
+          Cart.clear();
+          renderOrderConfirmation(container, data.order, data.payment);
+        } catch (err) {
+          msgEl.textContent = err.message || 'There was an issue placing your order. Please try again.';
+          msgEl.className = 'form-message error';
+          msgEl.style.display = 'block';
+          placeBtn.disabled = false;
+          placeBtn.textContent = 'Place Order';
+        }
+      });
+    }
+
+    function renderOrderConfirmation(container, order, payment) {
+      const isUpi = order.paymentMethod === 'upi';
+
+      const upiBlock = isUpi ? `
+        <div class="upi-payment-box">
+          <h3>Complete Your Payment</h3>
+          <p>Scan the QR code below or pay manually to the UPI ID, then send your screenshot on WhatsApp so we can confirm your order.</p>
+          <img src="${payment.qrCodeUrl}" alt="UPI QR Code" width="200" height="200" class="upi-qr">
+          <p class="upi-id">UPI ID: <strong>${payment.upiId}</strong></p>
+          <p class="upi-amount">Amount: <strong>&#8377;${order.total.toLocaleString('en-IN')}</strong></p>
+          <a href="${payment.upiDeepLink}" class="btn btn-secondary" style="margin-bottom: 10px;">Pay with UPI App</a>
+          <a href="${payment.whatsappUrl}" target="_blank" rel="noopener" class="btn btn-primary">Send Payment Proof on WhatsApp</a>
+        </div>
+      ` : `
+        <div class="upi-payment-box">
+          <h3>Cash on Delivery Selected</h3>
+          <p>${payment.instructions}</p>
+          <a href="${payment.whatsappUrl}" target="_blank" rel="noopener" class="btn btn-primary">Confirm Order on WhatsApp</a>
+        </div>
+      `;
+
+      container.innerHTML = `
+        <div class="cart-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.5" style="width:70px;height:70px;margin-bottom:16px;">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <h2>Order Placed Successfully!</h2>
+          <p>Order ID: <strong>${order.id}</strong></p>
+          <p style="margin-top: 4px;">${Auth.isLoggedIn() ? '<a href="dashboard.html">View your orders</a> any time from My Account.' : "We'll contact you on your phone number to confirm delivery details."}</p>
+          ${upiBlock}
+          <a href="products.html" class="btn btn-outline" style="margin-top: 20px;">Continue Shopping</a>
+        </div>
+      `;
+    }
+
+    document.addEventListener('DOMContentLoaded', renderCart);
+  </script>
+</body>
+</html>
