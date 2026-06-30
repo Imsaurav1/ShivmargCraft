@@ -18,7 +18,7 @@ exports.handler = async (event) => {
     if (existing.length) return respond(409, { error: "An account with this email already exists" });
 
     const [countRow] = await db.sql`SELECT COUNT(*) AS cnt FROM users`;
-    const role = parseInt(countRow.cnt, 10) === 0 ? "admin" : "customer";
+    const role = "customer";
 
     const userId = generateId("user");
 
