@@ -10,10 +10,8 @@
 
   /* ── Track current page view ─────────────────────────── */
   function trackCurrentPage() {
-    const pageId = document.body.dataset.pageId
-      || window.SM_PAGE_ID          // fallback: set this var in your page
-      || location.pathname.replace(/\//g, "").replace(/-/g, "-") 
-      || "home";
+    const pageId = window.SM_PAGE_ID          // fallback: set this var in your page
+      || location.pathname.replace(/\//g, "").replace(/-/g, "-") ;
 
     // fire-and-forget, no await needed
     fetch(TRACK_API, {
