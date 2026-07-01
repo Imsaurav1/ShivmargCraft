@@ -1,0 +1,577 @@
+/**
+ * ShivaMarg Auth — auth.js
+ * Drop-in login / register modal for any page.
+ * Reads/writes JWT to localStorage key "sm_token".
+ * Exposes: window.SmAuth.{init, getUser, getToken, logout, requireLogin}
+ *
+ * Usage in HTML:
+ *   <script src="/js/auth.js"></script>
+ *   <script> SmAuth.init({ apiBase: 'http://localhost:8000' }); </script>
+ */
+
+(function () {
+  'use strict';
+
+  /* ─── CONFIG ─── */
+  const TOKEN_KEY   = 'sm_token';
+  const USER_KEY    = 'sm_user';
+  let   API_BASE    = 'https://www.api.shivmarg.live'; // ← change to your server URL in prod
+
+  /* ─── STATE ─── */
+  let _user  = null;
+  let _token = null;
+
+  /* ─── STYLES (injected once) ─── */
+  function injectStyles() {
+    if (document.getElementById('sm-auth-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'sm-auth-styles';
+    style.textContent = `
+      /* ── Auth overlay ── */
+      #sm-auth-overlay {
+        position:fixed; inset:0; z-index:9000;
+        background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);
+        display:none; align-items:center; justify-content:center;
+        animation:sm-fade-in .25s ease;
+      }
+      #sm-auth-overlay.active { display:flex; }
+      @keyframes sm-fade-in { from{opacity:0} to{opacity:1} }
+
+      #sm-auth-modal {
+        background:linear-gradient(145deg,#0C0520,#040210);
+        border:1px solid rgba(124,77,255,0.3);
+        width:min(460px, 94vw); padding:36px 32px;
+        position:relative; animation:sm-slide-up .3s ease;
+      }
+      @keyframes sm-slide-up { from{transform:translateY(28px);opacity:0} to{transform:none;opacity:1} }
+      #sm-auth-modal::before {
+        content:''; position:absolute; top:0;left:0;right:0; height:3px;
+        background:linear-gradient(90deg,transparent,#7C4DFF,#C9A84C,#7C4DFF,transparent);
+      }
+
+      .sm-close {
+        position:absolute; top:14px; right:16px;
+        background:none; border:none; color:rgba(255,255,255,0.4);
+        font-size:1.4rem; cursor:pointer; transition:color .2s;
+      }
+      .sm-close:hover { color:#fff; }
+
+      .sm-modal-title {
+        font-family:'Cinzel Decorative',serif;
+        font-size:1.3rem; color:#E8C96A; text-align:center; margin-bottom:6px;
+        letter-spacing:1px;
+      }
+      .sm-modal-sub {
+        font-family:'Cinzel',serif; font-size:0.62rem; letter-spacing:4px;
+        color:rgba(179,157,219,0.6); text-transform:uppercase; text-align:center;
+        margin-bottom:26px;
+      }
+
+      /* Tabs */
+      .sm-tabs { display:flex; border:1px solid rgba(124,77,255,0.22); margin-bottom:24px; }
+      .sm-tab {
+        flex:1; padding:10px; text-align:center;
+        font-family:'Cinzel',serif; font-size:0.68rem; letter-spacing:3px; text-transform:uppercase;
+        color:rgba(255,255,255,0.4); cursor:pointer; transition:all .25s;
+        background:none; border:none;
+      }
+      .sm-tab.active { background:rgba(124,77,255,0.15); color:#B39DDB; }
+      .sm-tab:hover:not(.active) { color:rgba(255,255,255,0.7); }
+
+      /* Form */
+      .sm-form { display:flex; flex-direction:column; gap:13px; }
+      .sm-form input {
+        width:100%; background:rgba(0,0,0,0.55);
+        border:1px solid rgba(124,77,255,0.22); color:#F3EEFF;
+        padding:11px 14px; font-family:'EB Garamond',serif; font-size:0.97rem;
+        outline:none; transition:border-color .3s; border-radius:1px;
+      }
+      .sm-form input::placeholder { color:rgba(243,238,255,0.3); }
+      .sm-form input:focus { border-color:#9575CD; }
+
+      .sm-submit-btn {
+        background:linear-gradient(135deg,#1A0840,#0A0320);
+        border:1px solid rgba(124,77,255,0.4); color:#F3EEFF;
+        padding:13px; font-family:'Cinzel',serif; font-size:0.78rem;
+        letter-spacing:3px; text-transform:uppercase; cursor:pointer;
+        transition:all .3s; position:relative; overflow:hidden; margin-top:4px;
+      }
+      .sm-submit-btn::before {
+        content:''; position:absolute; inset:0;
+        background:rgba(124,77,255,0.25); opacity:0; transition:opacity .3s;
+      }
+      .sm-submit-btn:hover::before { opacity:1; }
+      .sm-submit-btn span { position:relative; z-index:1; }
+      .sm-submit-btn:disabled { opacity:0.5; cursor:wait; }
+
+      .sm-error {
+        color:#FF8A80; font-size:0.84rem; text-align:center;
+        font-family:'EB Garamond',serif; font-style:italic; min-height:20px;
+      }
+      .sm-toggle-link {
+        text-align:center; font-size:0.84rem; color:rgba(243,238,255,0.45);
+        font-family:'EB Garamond',serif;
+      }
+      .sm-toggle-link a {
+        color:#B39DDB; cursor:pointer; text-decoration:underline;
+      }
+
+      /* ── Topbar Auth Widget ── */
+      #sm-auth-widget {
+        position:fixed; top:12px; right:16px; z-index:8000;
+        display:flex; align-items:center; gap:10px;
+      }
+      .sm-widget-btn {
+        font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:2px; text-transform:uppercase;
+        padding:7px 16px; border:1px solid rgba(124,77,255,0.35);
+        color:rgba(243,238,255,0.65); background:rgba(4,2,16,0.8);
+        cursor:pointer; transition:all .25s; backdrop-filter:blur(8px);
+      }
+      .sm-widget-btn:hover { border-color:#B39DDB; color:#F3EEFF; }
+      .sm-widget-btn.primary { background:rgba(124,77,255,0.18); border-color:#7C4DFF; color:#B39DDB; }
+
+      .sm-user-chip {
+        display:flex; align-items:center; gap:8px;
+        background:rgba(4,2,16,0.8); border:1px solid rgba(124,77,255,0.22);
+        padding:6px 14px; backdrop-filter:blur(8px);
+      }
+      .sm-avatar {
+        width:28px; height:28px; border-radius:50%;
+        display:flex; align-items:center; justify-content:center;
+        font-family:'Cinzel',serif; font-size:0.75rem; color:#fff; font-weight:700;
+      }
+      .sm-uname { font-family:'Cinzel',serif; font-size:0.62rem; letter-spacing:1px; color:#B39DDB; }
+      .sm-logout {
+        font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:1px;
+        color:rgba(255,255,255,0.35); cursor:pointer; text-transform:uppercase;
+        background:none; border:none; padding:0; transition:color .2s;
+      }
+      .sm-logout:hover { color:#FF8A80; }
+
+      /* Toast */
+      #sm-toast {
+        position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+        background:rgba(20,8,50,0.95); border:1px solid rgba(124,77,255,0.35);
+        color:#B39DDB; font-family:'Cinzel',serif; font-size:0.7rem; letter-spacing:2px;
+        padding:10px 24px; z-index:9999; opacity:0;
+        transition:opacity .4s; white-space:nowrap; pointer-events:none;
+      }
+      #sm-toast.show{opacity:1;}
+
+      .sm-google-btn{
+        display:flex;align-items:center;justify-content:center;gap:10px;
+        width:100%;padding:11px;margin-top:4px;
+        background:#fff;border:1px solid rgba(124,77,255,0.22);
+        color:#3c4043;font-family:'Cinzel',serif;font-size:0.72rem;
+        letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+        transition:all .3s;border-radius:1px;
+      }
+      .sm-google-btn:hover{background:#f7f7f7;border-color:#9575CD;box-shadow:0 2px 12px rgba(124,77,255,0.15);}
+      .sm-google-btn img{width:18px;height:18px;}
+      .sm-or-divider{
+        display:flex;align-items:center;gap:10px;margin:4px 0;
+        color:rgba(243,238,255,0.25);font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:3px;
+      }
+      .sm-or-divider::before,.sm-or-divider::after{
+        content:'';flex:1;height:1px;background:rgba(124,77,255,0.18);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  /* ─── TOAST ─── */
+  function toast(msg, dur = 2800) {
+    let el = document.getElementById('sm-toast');
+    if (!el) { el = document.createElement('div'); el.id = 'sm-toast'; document.body.appendChild(el); }
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), dur);
+  }
+
+  /* ─── TOKEN / STORAGE ─── */
+  function saveSession(token, user) {
+    _token = token; _user = user;
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+  }
+
+  function loadSession() {
+    _token = localStorage.getItem(TOKEN_KEY);
+    const raw = localStorage.getItem(USER_KEY);
+    _user  = raw ? JSON.parse(raw) : null;
+  }
+
+  function clearSession() {
+    _token = null; _user = null;
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+  }
+
+  /* ─── AVATAR COLOR ─── */
+  // Each letter A–Z gets its own distinct gradient background
+  const AVATAR_COLORS = {
+    A: 'linear-gradient(135deg,#E53935,#B71C1C)',   // Deep Red
+    B: 'linear-gradient(135deg,#D81B60,#880E4F)',   // Pink
+    C: 'linear-gradient(135deg,#8E24AA,#4A148C)',   // Purple
+    D: 'linear-gradient(135deg,#5E35B1,#311B92)',   // Deep Purple
+    E: 'linear-gradient(135deg,#3949AB,#1A237E)',   // Indigo
+    F: 'linear-gradient(135deg,#1E88E5,#0D47A1)',   // Blue
+    G: 'linear-gradient(135deg,#039BE5,#01579B)',   // Light Blue
+    H: 'linear-gradient(135deg,#00ACC1,#006064)',   // Cyan
+    I: 'linear-gradient(135deg,#00897B,#004D40)',   // Teal
+    J: 'linear-gradient(135deg,#43A047,#1B5E20)',   // Green
+    K: 'linear-gradient(135deg,#7CB342,#33691E)',   // Light Green
+    L: 'linear-gradient(135deg,#C0CA33,#827717)',   // Lime
+    M: 'linear-gradient(135deg,#F9A825,#F57F17)',   // Amber
+    N: 'linear-gradient(135deg,#FB8C00,#E65100)',   // Orange
+    O: 'linear-gradient(135deg,#F4511E,#BF360C)',   // Deep Orange
+    P: 'linear-gradient(135deg,#8D6E63,#4E342E)',   // Brown
+    Q: 'linear-gradient(135deg,#546E7A,#263238)',   // Blue Grey
+    R: 'linear-gradient(135deg,#EC407A,#AD1457)',   // Hot Pink
+    S: 'linear-gradient(135deg,#7C4DFF,#4527A0)',   // Violet (ShivaMarg brand)
+    T: 'linear-gradient(135deg,#00BCD4,#00838F)',   // Aqua
+    U: 'linear-gradient(135deg,#FF7043,#BF360C)',   // Burnt Orange
+    V: 'linear-gradient(135deg,#26A69A,#00695C)',   // Sea Green
+    W: 'linear-gradient(135deg,#AB47BC,#6A1B9A)',   // Orchid
+    X: 'linear-gradient(135deg,#EF5350,#C62828)',   // Crimson
+    Y: 'linear-gradient(135deg,#FDD835,#F9A825)',   // Yellow
+    Z: 'linear-gradient(135deg,#29B6F6,#0277BD)',   // Sky Blue
+  };
+
+  /**
+   * Returns a CSS `background` value for a given avatar letter.
+   * Falls back to the ShivaMarg brand violet for non-alpha characters.
+   */
+  function getAvatarBg(letter) {
+    const key = (letter || '?').toUpperCase();
+    return AVATAR_COLORS[key] || 'linear-gradient(135deg,#7C4DFF,#512DA8)';
+  }
+
+  /* ─── API CALLS ─── */
+
+  // Render free-tier cold starts can take 20–30s, so wait up to 40s before giving up
+  const FETCH_TIMEOUT = 40000;
+  const RETRY_DELAY   = 3000;
+
+  async function apiPost(path, body, attempt = 0) {
+    const controller = new AbortController();
+    const timeoutId  = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+
+    let res;
+    try {
+      // Step 1: wait for HTTP response headers
+      res = await fetch(API_BASE + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+    } catch (e) {
+      clearTimeout(timeoutId);
+      // True network failure (dropped connection, server sleeping, timeout)
+      // Retry once automatically
+      if (attempt === 0) {
+        toast('⏳ सर्वर जाग रहा है… थोड़ी प्रतीक्षा करें');
+        await new Promise(r => setTimeout(r, RETRY_DELAY));
+        return apiPost(path, body, 1);
+      }
+      throw new Error('सर्वर से संपर्क नहीं हो पाया। कृपया कुछ देर बाद पुनः प्रयास करें।');
+    }
+    clearTimeout(timeoutId);
+
+    // Step 2: wait for response body
+    let data;
+    try {
+      data = await res.json();
+    } catch (e) {
+      throw new Error('सर्वर से अमान्य उत्तर मिला। पुनः प्रयास करें।');
+    }
+
+    // Step 3: HTTP 4xx/5xx = real error from server, do NOT retry
+    if (!res.ok) {
+      throw new Error(data.detail || 'Request failed');
+    }
+
+    return data;
+  }
+
+  async function verifyToken() {
+    if (!_token) return false;
+    try {
+      const res = await fetch(API_BASE + '/api/auth/me', {
+        headers: { Authorization: 'Bearer ' + _token }
+      });
+      if (!res.ok) { clearSession(); return false; }
+      const user = await res.json();
+      _user = user;
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+      return true;
+    } catch {
+      clearSession(); return false;
+    }
+  }
+
+  /* ─── MODAL HTML ─── */
+  function buildModal() {
+    const overlay = document.createElement('div');
+    overlay.id = 'sm-auth-overlay';
+    overlay.innerHTML = `
+      <div id="sm-auth-modal" role="dialog" aria-modal="true" aria-label="Login or Register">
+        <button class="sm-close" id="sm-close-btn" aria-label="Close">×</button>
+        <div class="sm-modal-title">🕉️ ShivaMarg</div>
+        <div class="sm-modal-sub" id="sm-modal-sub">भक्त-पोर्टल में प्रवेश करें</div>
+
+        <div class="sm-tabs">
+          <button class="sm-tab active" id="sm-tab-login" onclick="SmAuth._switchTab('login')">लॉगिन</button>
+          <button class="sm-tab" id="sm-tab-register" onclick="SmAuth._switchTab('register')">नया खाता</button>
+        </div>
+
+        <!-- Login form -->
+        <div id="sm-login-form" class="sm-form">
+          <input type="email" id="sm-l-email" placeholder="ईमेल पता" autocomplete="email">
+          <input type="password" id="sm-l-pass" placeholder="पासवर्ड" autocomplete="current-password">
+          <div class="sm-error" id="sm-l-error"></div>
+          <button class="sm-submit-btn" id="sm-l-btn" onclick="SmAuth._doLogin()">
+            <span>🔱 लॉगिन करें</span>
+          </button>
+          <div class="sm-toggle-link">नया भक्त? <a onclick="SmAuth._switchTab('register')">खाता बनाएँ</a></div>
+          <div class="sm-or-divider">या</div>
+          <button class="sm-google-btn" id="sm-google-login-btn" onclick="SmAuth._doGoogleAuth()">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="G">
+            Google से लॉगिन करें
+          </button>
+        </div>
+
+        <!-- Register form -->
+        <div id="sm-register-form" class="sm-form" style="display:none">
+          <input type="text" id="sm-r-name" placeholder="उपयोगकर्ता नाम (Username)" autocomplete="username">
+          <input type="email" id="sm-r-email" placeholder="ईमेल पता" autocomplete="email">
+          <input type="password" id="sm-r-pass" placeholder="पासवर्ड (न्यूनतम ६ अक्षर)" autocomplete="new-password">
+          <input type="password" id="sm-r-pass2" placeholder="पासवर्ड पुनः दर्ज करें">
+          <div class="sm-error" id="sm-r-error"></div>
+          <button class="sm-submit-btn" id="sm-r-btn" onclick="SmAuth._doRegister()">
+            <span>🌸 खाता बनाएँ</span>
+          </button>
+          <div class="sm-toggle-link">पहले से खाता है? <a onclick="SmAuth._switchTab('login')">लॉगिन करें</a></div>
+          <div class="sm-or-divider">या</div>
+          <button class="sm-google-btn" id="sm-google-reg-btn" onclick="SmAuth._doGoogleAuth()">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="G">
+            Google से खाता बनाएँ
+          </button>
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+
+    // Close on overlay click
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) SmAuth._closeModal();
+    });
+    document.getElementById('sm-close-btn').addEventListener('click', SmAuth._closeModal);
+
+    // Enter key
+    overlay.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') SmAuth._closeModal();
+      if (e.key === 'Enter') {
+        const isLogin = document.getElementById('sm-login-form').style.display !== 'none';
+        isLogin ? SmAuth._doLogin() : SmAuth._doRegister();
+      }
+    });
+  }
+
+  /* ─── AUTH WIDGET (top bar) ─── */
+  function buildWidget() {
+    const w = document.createElement('div');
+    w.id = 'sm-auth-widget';
+    document.body.appendChild(w);
+    renderWidget();
+  }
+
+  function renderWidget() {
+    const w = document.getElementById('sm-auth-widget');
+    if (!w) return;
+    if (_user) {
+      // Derive the avatar letter: use stored avatar if it's a single char, else first letter of username
+      const avatarChar = (_user.avatar && _user.avatar.length === 1)
+        ? _user.avatar
+        : _user.username[0];
+      const avatarBg = getAvatarBg(avatarChar);
+
+      w.innerHTML = `
+        <div class="sm-user-chip">
+          <a href="/profile.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer" title="मेरी प्रोफ़ाइल">
+            <div class="sm-avatar" style="background:${avatarBg}">${avatarChar.toUpperCase()}</div>
+            <span class="sm-uname" style="color:#B39DDB">${_user.username}</span>
+          </a>
+          <button class="sm-logout" onclick="SmAuth.logout()">लॉगआउट</button>
+        </div>`;
+    } else {
+      w.innerHTML = `
+        <button class="sm-widget-btn" onclick="SmAuth._switchTab('register');SmAuth._openModal()">खाता बनाएँ</button>
+        <button class="sm-widget-btn primary" onclick="SmAuth._switchTab('login');SmAuth._openModal()">लॉगिन</button>`;
+    }
+    // Notify comments module
+    document.dispatchEvent(new CustomEvent('sm-auth-changed', { detail: { user: _user } }));
+  }
+
+  /* ─── MODAL ACTIONS ─── */
+  function _openModal()  { document.getElementById('sm-auth-overlay').classList.add('active'); }
+  function _closeModal() { document.getElementById('sm-auth-overlay').classList.remove('active'); }
+
+  function _switchTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('sm-login-form').style.display    = isLogin ? 'flex' : 'none';
+    document.getElementById('sm-register-form').style.display = isLogin ? 'none' : 'flex';
+    document.getElementById('sm-tab-login').classList.toggle('active', isLogin);
+    document.getElementById('sm-tab-register').classList.toggle('active', !isLogin);
+    document.getElementById('sm-modal-sub').textContent = isLogin ? 'भक्त-पोर्टल में प्रवेश करें' : 'नया खाता बनाएँ';
+    document.getElementById(isLogin ? 'sm-l-error' : 'sm-r-error').textContent = '';
+  }
+
+  async function _doLogin() {
+    const email = document.getElementById('sm-l-email').value.trim();
+    const pass  = document.getElementById('sm-l-pass').value;
+    const errEl = document.getElementById('sm-l-error');
+    const btn   = document.getElementById('sm-l-btn');
+
+    if (!email || !pass) { errEl.textContent = 'कृपया सभी क्षेत्र भरें।'; return; }
+    btn.disabled = true; errEl.textContent = '';
+    try {
+      const data = await apiPost('/api/auth/login', { email, password: pass });
+      saveSession(data.token, data.user);
+      _closeModal();
+      renderWidget();
+      toast('🙏 जय शिव! स्वागत है, ' + data.user.username);
+    } catch (e) {
+      errEl.textContent = e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function _doRegister() {
+    const username = document.getElementById('sm-r-name').value.trim();
+    const email    = document.getElementById('sm-r-email').value.trim();
+    const pass     = document.getElementById('sm-r-pass').value;
+    const pass2    = document.getElementById('sm-r-pass2').value;
+    const errEl    = document.getElementById('sm-r-error');
+    const btn      = document.getElementById('sm-r-btn');
+
+    if (!username || !email || !pass || !pass2) { errEl.textContent = 'कृपया सभी क्षेत्र भरें।'; return; }
+    if (pass !== pass2) { errEl.textContent = 'पासवर्ड मेल नहीं खाते।'; return; }
+    if (pass.length < 6) { errEl.textContent = 'पासवर्ड कम से कम 6 अक्षरों का हो।'; return; }
+
+    btn.disabled = true; errEl.textContent = '';
+    try {
+      const data = await apiPost('/api/auth/register', { username, email, password: pass });
+      saveSession(data.token, data.user);
+      _closeModal();
+      renderWidget();
+      toast('🌸 खाता बन गया! जय महादेव, ' + data.user.username);
+    } catch (e) {
+      errEl.textContent = e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  /* ─── GOOGLE AUTH ─── */
+  const GOOGLE_CLIENT_ID = '299436963033-5u4k118211j4jbeum45r67omn10d0g7g.apps.googleusercontent.com'; // ← paste your Client ID here
+
+  function _loadGoogleScript() {
+    return new Promise((resolve) => {
+      if (window.google) { resolve(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://accounts.google.com/gsi/client';
+      s.onload = resolve;
+      document.head.appendChild(s);
+    });
+  }
+
+  async function _doGoogleAuth() {
+    if (!GOOGLE_CLIENT_ID) {
+      toast('⚠️ Google लॉगिन अभी उपलब्ध नहीं है');
+      return;
+    }
+    // Disable both Google buttons while working
+    ['sm-google-login-btn','sm-google-reg-btn'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.disabled = true; el.textContent = '⏳ प्रतीक्षा करें…'; }
+    });
+    try {
+      await _loadGoogleScript();
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: async (response) => {
+          try {
+            const data = await apiPost('/api/auth/google', { id_token: response.credential });
+            saveSession(data.token, data.user);
+            _closeModal();
+            renderWidget();
+            toast(data.is_new
+              ? '🌸 खाता बन गया! जय महादेव, ' + data.user.username
+              : '🙏 जय शिव! स्वागत है, ' + data.user.username
+            );
+          } catch (e) {
+            // Show error in whichever tab is active
+            const isLogin = document.getElementById('sm-login-form').style.display !== 'none';
+            document.getElementById(isLogin ? 'sm-l-error' : 'sm-r-error').textContent = e.message;
+          } finally {
+            ['sm-google-login-btn','sm-google-reg-btn'].forEach(id => {
+              const el = document.getElementById(id);
+              if (el) {
+                el.disabled = false;
+                el.innerHTML = '<img src="https://developers.google.com/identity/images/g-logo.png" alt="G" style="width:18px;height:18px"> Google से ' + (id.includes('login') ? 'लॉगिन' : 'खाता बनाएँ');
+              }
+            });
+          }
+        },
+      });
+      window.google.accounts.id.prompt(); // shows the Google One Tap popup
+    } catch (e) {
+      toast('⚠️ Google लॉगिन में समस्या हुई');
+    }
+  }
+
+
+  function logout() {
+    clearSession();
+    renderWidget();
+    toast('👋 लॉगआउट हो गए। जय शिव!');
+  }
+
+  /* ─── PUBLIC API ─── */
+  window.SmAuth = {
+    init(opts = {}) {
+      if (opts.apiBase) API_BASE = opts.apiBase;
+      injectStyles();
+      loadSession();
+      buildModal();
+      buildWidget();
+      // Silently verify token in background
+      if (_token) {
+        verifyToken().then(() => renderWidget());
+      }
+    },
+    getUser()  { return _user; },
+    getToken() { return _token; },
+    logout,
+    /** Call this to require login before an action. Returns true if logged in, else opens modal. */
+    requireLogin(onSuccess) {
+      if (_user) { if (onSuccess) onSuccess(_user); return true; }
+      _openModal();
+      // After login event, run callback once
+      function handler(e) {
+        if (e.detail && e.detail.user) {
+          document.removeEventListener('sm-auth-changed', handler);
+          if (onSuccess) onSuccess(e.detail.user);
+        }
+      }
+      document.addEventListener('sm-auth-changed', handler);
+      return false;
+    },
+    /** Exposed utility so other modules can reuse the same color logic */
+    getAvatarBg,
+    _openModal, _closeModal, _switchTab, _doLogin, _doRegister,_doGoogleAuth,
+  };
+})();
